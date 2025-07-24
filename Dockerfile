@@ -1,29 +1,33 @@
-# Stage 1: Build React app
-FROM node:18-alpine AS build
+# Stage 1: Build application
+FROM node:lts-alpine AS builder  # Fixed casing here
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
-COPY package.json package-lock.json* ./
-RUN npm ci
+# Install dependencies first for better caching
+COPY package*.json ./
+RUN npm ci --silent
 
-# Copy source code
+# Copy source files
 COPY . .
 
-# Build the React app for production
+# Build the application
 RUN npm run build
 
-# Stage 2: Serve the built app with a lightweight web server
+# Stage 2: Production server
 FROM nginx:stable-alpine
 
-# Remove default nginx website
-RUN rm -rf /usr/share/nginx/html/*
+# Remove default nginx configuration
+RUN rm -rf /etc/nginx/conf.d/*
 
-# Copy build output to nginx html folder
-COPY --from=build /app/build /usr/share/nginx/html
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
+# Copy built files from builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expose port 80 (HTTP)
 EXPOSE 80
 
-# Start nginx
+# Start nginx in foreground
 CMD ["nginx", "-g", "daemon off;"]
