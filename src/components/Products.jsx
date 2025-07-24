@@ -1,7 +1,4 @@
 import React from 'react';
-import CottonImage from '../assets/cotton.jpg';
-import CottonSeedsImage from '../assets/designer.jpeg';
-import CottonSeedOilImage from '../assets/mill1.jpg';
 
 const Products = () => {
   return (
@@ -14,7 +11,7 @@ const Products = () => {
         {/* Cotton */}
         <div className="bg-white shadow-xl rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
           <img 
-            src={CottonImage}
+            src="/cotton.jpg"  // public folder path
             alt="Cotton"
             className="w-full h-48 object-cover"
           />
@@ -39,7 +36,7 @@ const Products = () => {
         {/* Cotton Seeds */}
         <div className="bg-white shadow-xl rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
           <img 
-            src={CottonSeedsImage}
+            src="/designer.jpeg"  // public folder path
             alt="Cotton Seeds"
             className="w-full h-48 object-cover"
           />
@@ -64,7 +61,7 @@ const Products = () => {
         {/* Cotton Seed Oil */}
         <div className="bg-white shadow-xl rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
           <img 
-            src={CottonSeedOilImage}
+            src="/mill1.jpg"  // public folder path
             alt="Cotton Seed Oil"
             className="w-full h-48 object-cover"
           />

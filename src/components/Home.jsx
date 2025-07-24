@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ArrowRight } from 'lucide-react';
-// import Main from '../assets/main-1.jpg'
-import Main from '../assets/img2.jpg'
-import Img1 from '../assets/Img1.jpg'
-import Img2 from '../assets/Img2.jpg'
-import Img3 from '../assets/cotton.jpg'
 
 const Home = () => {
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
@@ -15,7 +10,7 @@ const Home = () => {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <img
-          src={Main}
+          src="/img2.jpg" // from public/img2.jpg
           alt="Cotton Field"
           className="absolute inset-0 object-cover w-full h-full"
         />
@@ -81,7 +76,7 @@ const Home = () => {
             {/* Product 1 */}
             <div className="bg-white rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition">
               <img
-                src={Img2}
+                src="/Img2.jpg" // from public/Img2.jpg
                 alt="Premium Cotton"
                 className="w-full h-48 object-cover"
               />
@@ -101,7 +96,7 @@ const Home = () => {
             {/* Product 2 */}
             <div className="bg-white rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition">
               <img
-                src={Img1}
+                src="/Img1.jpg" // from public/Img1.jpg
                 alt="Cotton Products"
                 className="w-full h-48 object-cover"
               />
@@ -118,10 +113,10 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Product 3 (New) */}
+            {/* Product 3 */}
             <div className="bg-white rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition">
               <img
-                src={Img3}
+                src="/cotton.jpg" // from public/cotton.jpg
                 alt="Sustainable Cotton"
                 className="w-full h-48 object-cover"
               />
@@ -140,8 +135,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-     
     </div>
   );
 }

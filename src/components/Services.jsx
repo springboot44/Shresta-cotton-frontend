@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
 import { ArrowRight, ChevronDown } from 'lucide-react';
-import Main from '../assets/main-3.jpg';
-import Cotton from '../assets/cotton.jpg';
-import Mill from '../assets/mill.jpg';
-
 
 const ServiceCard = ({ title, description, image, gradient }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -40,7 +36,7 @@ const Services = () => {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <img
-          src={Main}
+          src="/main-3.jpg"  // public folder path
           alt="Cotton Processing"
           className="absolute inset-0 object-cover w-full h-full"
         />
@@ -68,19 +64,19 @@ const Services = () => {
             <ServiceCard
               title="Cotton Ginning"
               description="Our cotton ginning process is designed to separate the cotton fibers from the seeds with precision and efficiency. Using advanced machinery and techniques, we ensure that the cotton is processed to the highest standards, maintaining its quality and integrity. We offer both conventional and organic ginning services, catering to different requirements and preferences. Our team of experts ensures that every batch of cotton meets the desired specifications and is ready for further processing or export."
-              image={Cotton}
+              image="/cotton.jpg"  // public folder path
               gradient="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-500"
             />
             <ServiceCard
               title="Cotton Seed Processing"
               description="We provide comprehensive cotton seed processing services, including cleaning, grading, and packaging. Our state-of-the-art equipment ensures that the seeds are processed to the highest quality standards, ready for planting or sale. Our processing facility is equipped to handle large volumes, and we offer customized solutions to meet the specific needs of our clients. Whether you need seeds for local agriculture or international export, we have the capabilities to deliver."
-              image={Mill}
+              image="/mill.jpg"  // public folder path
               gradient="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-500"
             />
             <ServiceCard
               title="Cotton Seed Oil Extraction"
               description="Our oil extraction service involves extracting high-quality cottonseed oil using advanced technology. This oil is suitable for various applications, including cooking, cosmetics, and industrial uses. We prioritize quality and purity in our extraction process, ensuring that the oil retains its beneficial properties. Our facility adheres to stringent quality controls to provide oil that meets the highest standards."
-              image={Mill}
+              image="/mill.jpg"  // public folder path
               gradient="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-yellow-500"
             />
           </div>
@@ -106,8 +102,8 @@ const Services = () => {
         </div>
       </section>
 
-      {/* Contact Section
-      <section className="py-20 bg-blue-600 text-white">
+      {/* Contact Section (commented out) */}
+      {/* <section className="py-20 bg-blue-600 text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-extrabold mb-6">
             Ready to Get Started?
