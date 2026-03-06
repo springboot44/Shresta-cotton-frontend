@@ -76,7 +76,7 @@ const Home = () => {
             {/* Product 1 */}
             <div className="bg-white rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition">
               <img
-                src="/Img2.jpg" // from public/Img2.jpg
+                src="/img2.jpg" // from public/Img2.jpg
                 alt="Premium Cotton"
                 className="w-full h-48 object-cover"
               />
@@ -96,7 +96,7 @@ const Home = () => {
             {/* Product 2 */}
             <div className="bg-white rounded-xl overflow-hidden shadow-lg transform hover:scale-105 transition">
               <img
-                src="/Img1.jpg" // from public/Img1.jpg
+                src="/img1.jpg" // from public/Img1.jpg
                 alt="Cotton Products"
                 className="w-full h-48 object-cover"
               />
