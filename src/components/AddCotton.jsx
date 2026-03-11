@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Package, DollarSign, Scale, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { useAuth } from './AuthContext'; // Adjust the path as necessary
+import { Package, DollarSign, Scale, FileText, CheckCircle, AlertCircle, Loader2, ShieldAlert } from 'lucide-react';
+import { useAuth } from './AuthContext';
 
 const AddCotton = () => {
+  const { token, user } = useAuth(); // Destructure user to check role
+
   const [formData, setFormData] = useState({
     name: '',
     quantity: '',
@@ -12,21 +14,28 @@ const AddCotton = () => {
   });
 
   const [message, setMessage] = useState('');
-  const [addedCotton, setAddedCotton] = useState(null);
+  const [status, setStatus] = useState(null); // 'success' or 'error'
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Get token from props or context
-  // You can also use: const { token } = useAuth(); if using auth context
-
-  const { token } = useAuth(); // Assuming you have a context for auth
+  // 1. SHIELD: Redirect or Block non-admins immediately
+  if (!user || user.role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md border border-red-100">
+          <ShieldAlert className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Access Denied</h2>
+          <p className="text-gray-600">You do not have the administrative privileges required to manage inventory.</p>
+        </div>
+      </div>
+    );
+  }
 
   const validateForm = () => {
     const newErrors = {};
-    
     if (!formData.name.trim()) newErrors.name = 'Cotton name is required';
-    if (!formData.quantity || parseFloat(formData.quantity) <= 0) newErrors.quantity = 'Valid quantity is required';
-    if (!formData.price || parseFloat(formData.price) <= 0) newErrors.price = 'Valid price is required';
+    if (!formData.quantity || parseFloat(formData.quantity) <= 0) newErrors.quantity = 'Enter a valid quantity';
+    if (!formData.price || parseFloat(formData.price) <= 0) newErrors.price = 'Enter a valid price';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     
     setErrors(newErrors);
@@ -34,26 +43,23 @@ const AddCotton = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    // Auto-convert numbers to ensure clean data
     setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'number' ? (value === '' ? '' : parseFloat(value)) : value,
     }));
     
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!validateForm()) return;
     
     setIsLoading(true);
     setMessage('');
+    setStatus(null);
 
     try {
       const response = await axios.post(
@@ -67,203 +73,135 @@ const AddCotton = () => {
         }
       );
 
-      setMessage(response.data.message || 'Cotton added successfully!');
-      setAddedCotton(response.data.cotton);
+      setStatus('success');
+      setMessage(response.data.message || 'Inventory updated successfully!');
       setFormData({ name: '', quantity: '', price: '', description: '' });
     } catch (error) {
-      console.error('Error adding cotton:', error);
-      
-      // Handle different error scenarios
-      if (error.response) {
-        // Server responded with error status
-        const errorMessage = error.response.data.message || 
-                           error.response.data.error || 
-                           `Server error: ${error.response.status}`;
-        setMessage(errorMessage);
-      } else if (error.request) {
-        // Request was made but no response received
-        setMessage('Network error: Unable to connect to server');
-      } else {
-        // Something else happened
-        setMessage('Failed to add cotton. Please try again.');
-      }
+      setStatus('error');
+      const errorMsg = error.response?.data?.message || 'Failed to connect to server';
+      setMessage(errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full mb-4">
-            <Package className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            Add Cotton Inventory
-          </h1>
-          <p className="text-gray-600 text-lg">Manage your cotton stock with ease</p>
+    <div className="min-h-screen bg-[#f8fafc] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        {/* Breadcrumb / Category Tag */}
+        <div className="flex justify-center mb-4">
+          <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+            Admin Portal
+          </span>
         </div>
 
-        <div className="max-w-2xl mx-auto">
-          {/* Form Section */}
-          <div className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl p-8 border border-white/20">
-            <div className="space-y-6">
-              {/* Cotton Name */}
-              <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Cotton Name
-                </label>
-                <div className="relative">
-                  <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
+            Add New Cotton Stock
+          </h1>
+          <p className="text-slate-500 text-lg">Update the marketplace inventory with latest arrivals.</p>
+        </div>
+
+        <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+          <form onSubmit={handleSubmit} className="p-8 sm:p-12 space-y-8">
+            
+            {/* Status Feedback */}
+            {message && (
+              <div className={`p-4 rounded-xl flex items-center animate-in fade-in slide-in-from-top-2 duration-300 ${
+                status === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+              }`}>
+                {status === 'success' ? <CheckCircle className="w-5 h-5 mr-3" /> : <AlertCircle className="w-5 h-5 mr-3" />}
+                <p className="font-semibold">{message}</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-2">
+              {/* Name - Full Width */}
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-bold text-slate-700 mb-2">Cotton Variety Name</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Package className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  </div>
                   <input
                     type="text"
                     name="name"
-                    placeholder="e.g., Premium Cotton Grade A"
                     value={formData.name}
                     onChange={handleChange}
-                    className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
-                      errors.name 
-                        ? 'border-red-300 bg-red-50' 
-                        : 'border-gray-200 focus:border-blue-400 group-hover:border-gray-300'
-                    }`}
+                    className={`block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none ${errors.name ? 'border-rose-400 ring-4 ring-rose-50' : ''}`}
+                    placeholder="e.g. Shankar-6 Super Fine"
+                  />
+                  {errors.name && <p className="mt-2 text-xs text-rose-500 font-medium">{errors.name}</p>}
+                </div>
+              </div>
+
+              {/* Quantity */}
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Quantity (Kg)</label>
+                <div className="relative">
+                  <Scale className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                  <input
+                    type="number"
+                    name="quantity"
+                    value={formData.quantity}
+                    onChange={handleChange}
+                    className="block w-full pl-11 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
+                    placeholder="0.00"
                   />
                 </div>
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center">
-                    <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.name}
-                  </p>
-                )}
+                {errors.quantity && <p className="mt-2 text-xs text-rose-500 font-medium">{errors.quantity}</p>}
               </div>
 
-              {/* Quantity and Price Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="group">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Quantity (kg)
-                  </label>
-                  <div className="relative">
-                    <Scale className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="number"
-                      name="quantity"
-                      placeholder="1000"
-                      value={formData.quantity}
-                      onChange={handleChange}
-                      min="0"
-                      step="0.01"
-                      className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
-                        errors.quantity 
-                          ? 'border-red-300 bg-red-50' 
-                          : 'border-gray-200 focus:border-blue-400 group-hover:border-gray-300'
-                      }`}
-                    />
-                  </div>
-                  {errors.quantity && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center">
-                      <AlertCircle className="w-4 h-4 mr-1" />
-                      {errors.quantity}
-                    </p>
-                  )}
-                </div>
-
-                <div className="group">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Price per kg (₹)
-                  </label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="number"
-                      name="price"
-                      placeholder="2500"
-                      value={formData.price}
-                      onChange={handleChange}
-                      min="0"
-                      step="0.01"
-                      className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
-                        errors.price 
-                          ? 'border-red-300 bg-red-50' 
-                          : 'border-gray-200 focus:border-blue-400 group-hover:border-gray-300'
-                      }`}
-                    />
-                  </div>
-                  {errors.price && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center">
-                      <AlertCircle className="w-4 h-4 mr-1" />
-                      {errors.price}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Description
-                </label>
+              {/* Price */}
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Price per Kg (₹)</label>
                 <div className="relative">
-                  <FileText className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                  <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
+                    className="block w-full pl-11 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
+                    placeholder="0.00"
+                  />
+                </div>
+                {errors.price && <p className="mt-2 text-xs text-rose-500 font-medium">{errors.price}</p>}
+              </div>
+
+              {/* Description - Full Width */}
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-bold text-slate-700 mb-2">Inventory Details</label>
+                <div className="relative">
+                  <FileText className="absolute left-4 top-4 h-5 w-5 text-slate-400" />
                   <textarea
                     name="description"
-                    placeholder="Describe the cotton quality, origin, and any special characteristics..."
+                    rows="4"
                     value={formData.description}
                     onChange={handleChange}
-                    rows="4"
-                    className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none ${
-                      errors.description 
-                        ? 'border-red-300 bg-red-50' 
-                        : 'border-gray-200 focus:border-blue-400 group-hover:border-gray-300'
-                    }`}
+                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none resize-none"
+                    placeholder="Enter fiber length, moisture content, and origin..."
                   />
                 </div>
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center">
-                    <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.description}
-                  </p>
-                )}
+                {errors.description && <p className="mt-2 text-xs text-rose-500 font-medium">{errors.description}</p>}
               </div>
-
-              {/* Submit Button */}
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2 w-5 h-5" />
-                    Adding Cotton...
-                  </>
-                ) : (
-                  <>
-                    <Package className="mr-2 w-5 h-5" />
-                    Add Cotton to Inventory
-                  </>
-                )}
-              </button>
             </div>
 
-            {/* Status Messages */}
-            {message && (
-              <div className={`mt-6 p-4 rounded-xl flex items-center ${
-                message.includes('success') 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
-                  : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
-                {message.includes('success') ? (
-                  <CheckCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-                ) : (
-                  <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-                )}
-                <span className="font-medium">{message}</span>
-              </div>
-            )}
-          </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center py-4 px-6 rounded-2xl text-white font-bold text-lg bg-slate-900 hover:bg-blue-600 active:scale-95 transition-all shadow-xl shadow-slate-200 disabled:bg-slate-300 disabled:scale-100"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                  Updating Database...
+                </>
+              ) : (
+                "Confirm & Add to Stock"
+              )}
+            </button>
+          </form>
         </div>
       </div>
     </div>
