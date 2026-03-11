@@ -15,6 +15,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import CottonList from './components/CottonList';
 import CottonListDay from './components/CottonListDay';
 import AddCotton from './components/AddCotton';
+import DeleteCotton from './components/DeleteCotton';
 
 function App() {
   const location = useLocation();
@@ -50,9 +51,18 @@ function App() {
         
         <Route
           path="/addcotton"
+         
           element={
             <ProtectedRoute>
               <AddCotton />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/deletecotton"
+          element={
+            <ProtectedRoute>
+              <DeleteCotton />
             </ProtectedRoute>
           }
         />
