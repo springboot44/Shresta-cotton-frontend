@@ -1,106 +1,122 @@
 import React, { useState } from 'react';
-import axios from 'axios'; // Ensure you have axios installed
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
+import { User, Mail, Lock, Loader2 } from 'lucide-react'; // Optional icons
 
 const Signup = () => {
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [formData, setFormData] = useState({
+        username: "",
+        email: "",
+        password: ""
+    });
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Form submitted:', { username, email, password });
-        // Add your form submission logic here
+    const { username, email, password } = formData;
 
-
-
-        const sentData=async ()=>{
-
-             try {
-                const response=await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`,{username,email,password});
-
-                console.log(response.data);
-                if(response.data.success){
-                    alert("Signup successful!");
-                    // Redirect to login or home page
-                }
-
-             } catch (error) {
-                console.error('Error during signup:', error);
-                alert("Signup failed. Please try again.");
-             }
-        }
-        sentData();
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-  
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_BASE_URL}/auth/register`, 
+                formData
+            );
+
+            if (response.data.success) {
+                alert("Signup successful! Welcome aboard.");
+                navigate('/login');
+            }
+        } catch (error) {
+            console.error('Error during signup:', error);
+            alert(error.response?.data?.message || "Signup failed. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 p-4">
-            {/* Background pattern overlay */}
-            <div className="absolute inset-0 bg-black opacity-20"></div>
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10"></div>
-            
-            {/* Animated background elements */}
-            <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            
-            {/* Main signup card */}
-            <div className="relative z-10 w-full max-w-md">
-                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
-                    <div className="text-center mb-8">
-                        <h2 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
-                        <p className="text-gray-600">Join us and start your journey</p>
+        <div className="min-h-screen flex items-center justify-center bg-[#0f172a] relative overflow-hidden">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] animate-pulse delay-700"></div>
+
+            <div className="relative z-10 w-full max-w-md px-4">
+                <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10">
+                    <div className="text-center mb-10">
+                        <h2 className="text-4xl font-extrabold text-white tracking-tight mb-2">
+                            Join the <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Future</span>
+                        </h2>
+                        <p className="text-gray-400">Create your account in seconds</p>
                     </div>
-                    
-                    <div className="space-y-6">
-                        <div className="relative">
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        {/* Username Field */}
+                        <div className="relative group">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-blue-400 transition-colors" />
                             <input
+                                name="username"
                                 type="text"
                                 placeholder="Full Name"
                                 value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-500"
+                                onChange={handleChange}
+                                className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
                                 required
                             />
                         </div>
-                        
-                        <div className="relative">
+
+                        {/* Email Field */}
+                        <div className="relative group">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-blue-400 transition-colors" />
                             <input
+                                name="email"
                                 type="email"
                                 placeholder="Email Address"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-500"
+                                onChange={handleChange}
+                                className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
                                 required
                             />
                         </div>
-                        
-                        <div className="relative">
+
+                        {/* Password Field */}
+                        <div className="relative group">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-blue-400 transition-colors" />
                             <input
+                                name="password"
                                 type="password"
                                 placeholder="Password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-500"
+                                onChange={handleChange}
+                                className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
                                 required
                             />
                         </div>
-                        
+
                         <button
-                            type="button"
-                            onClick={handleSubmit}
-                            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full group relative flex justify-center items-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            Create Account
+                            {isLoading ? (
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                            ) : (
+                                "Get Started"
+                            )}
                         </button>
-                    </div>
-                    
-                    <div className="mt-6 text-center">
-                        <p className="text-gray-600">
-                            Already have an account?{' '}
-                            <a href="#" className="text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200">
-                                Sign in
-                            </a>
+                    </form>
+
+                    <div className="mt-8 text-center">
+                        <p className="text-gray-400">
+                            Already a member?{' '}
+                            <Link to="/login" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
+                                Sign In
+                            </Link>
                         </p>
                     </div>
                 </div>

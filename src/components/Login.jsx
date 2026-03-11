@@ -1,119 +1,127 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext'; // Adjust the path as necessary
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from './AuthContext';
+import axios from 'axios';
+import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react'; // Ensure lucide-react is installed
 
-import axios from 'axios'; // Ensure you have axios installed
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const { login } = useAuth(); // Use the login function from AuthContext
-    const navigate = useNavigate(); // Use navigate for redirection
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form submitted:', { email, password, rememberMe });
-      
+        setIsLoading(true);
 
-          const sentData=async ()=>{
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_BASE_URL}/auth/login`, 
+                { email, password, rememberMe }
+            );
 
-            try {
-
-                const response=await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`,{email,password,rememberMe});
-
-              const {user,token}= response.data;
-                login({token,user});
-
-               navigate('/dashboard');
-
-                if(response.data.success){
-                    alert("Login successful!");
-                    // Redirect to dashboard or home page
-                }
-
-            } catch (error) {
-                console.error('Error during login:', error);
-                alert("Login failed. Please try again.");
+            if (response.data.success) {
+                const { user, token } = response.data;
+                login({ token, user });
+                navigate('/dashboard');
             }
-          }
-          sentData();
+        } catch (error) {
+            console.error('Error during login:', error);
+            alert(error.response?.data?.message || "Login failed. Please check your credentials.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 p-4">
-            {/* Background pattern overlay */}
-            <div className="absolute inset-0 bg-black opacity-20"></div>
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 to-blue-600/10"></div>
-            
-            {/* Animated background elements */}
-            <div className="absolute top-32 right-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-32 left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-700"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1500"></div>
-            
-            {/* Main signin card */}
-            <div className="relative z-10 w-full max-w-md">
-                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
-                    <div className="text-center mb-8">
-                        <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
-                        <p className="text-gray-600">Sign in to your account</p>
-                    </div>
-                    
-                    <div className="space-y-6">
-                        <div className="relative">
-                            <input
-                                type="email"
-                                placeholder="Email Address"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 placeholder-gray-500"
-                                required
-                            />
-                        </div>
-                        
-                        <div className="relative">
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 placeholder-gray-500"
-                                required
-                            />
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                            <label className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={rememberMe}
-                                    onChange={(e) => setRememberMe(e.target.checked)}
-                                    className="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2"
-                                />
-                                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-                            </label>
-                            <a href="#" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors duration-200">
-                                Forgot password?
-                            </a>
-                        </div>
-                        
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                            className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            Sign In
-                        </button>
-                        
+        <div className="min-h-screen flex items-center justify-center bg-[#0f172a] relative overflow-hidden">
+            {/* Glassmorphism Background Elements */}
+            <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse delay-1000"></div>
 
+            <div className="relative z-10 w-full max-w-md px-6">
+                <div className="bg-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl p-10 border border-white/10">
+                    <div className="text-center mb-10">
+                        <h2 className="text-4xl font-bold text-white mb-3">Welcome Back</h2>
+                        <p className="text-blue-100/60">Enter your details to access your account</p>
                     </div>
-                    
-                    <div className="mt-6 text-center">
-                        <p className="text-gray-600">
-                            Don't have an account?{' '}
-                            <a href="#" className="text-indigo-600 hover:text-indigo-700 font-medium transition-colors duration-200">
-                                Sign up
-                            </a>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Email Input */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-blue-100/80 ml-1">Email Address</label>
+                            <div className="relative group">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-400 transition-colors" />
+                                <input
+                                    type="email"
+                                    placeholder="name@company.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Password Input */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center ml-1">
+                                <label className="text-sm font-medium text-blue-100/80">Password</label>
+                                <a href="#" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">Forgot password?</a>
+                            </div>
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-400 transition-colors" />
+                                <input
+                                    type="password"
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Remember Me */}
+                        <div className="flex items-center space-x-2 px-1">
+                            <input
+                                type="checkbox"
+                                id="remember"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className="w-4 h-4 rounded border-white/10 bg-white/5 text-blue-600 focus:ring-blue-500/50"
+                            />
+                            <label htmlFor="remember" className="text-sm text-blue-100/60 cursor-pointer select-none">
+                                Keep me signed in
+                            </label>
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full group relative flex justify-center items-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-blue-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {isLoading ? (
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                            ) : (
+                                <>
+                                    <span>Sign In</span>
+                                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
+                        </button>
+                    </form>
+
+                    <div className="mt-8 text-center">
+                        <p className="text-blue-100/60 text-sm">
+                            New here?{' '}
+                            <Link to="/signup" className="text-blue-400 hover:text-blue-300 font-bold transition-colors">
+                                Create an account
+                            </Link>
                         </p>
                     </div>
                 </div>
